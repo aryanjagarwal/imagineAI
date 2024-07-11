@@ -89,7 +89,7 @@ export async function POST(req: Request) {
     const { id, image_url, first_name, last_name, username } = evt.data;
 
     const user = {
-      firstName: first_name || "", // my code
+      firstName: first_name || "", // my code to handle null values
       lastName: last_name || "",
       username: username!,
       photo: image_url,
