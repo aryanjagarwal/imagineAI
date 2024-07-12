@@ -26,6 +26,10 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { CustomField } from "./CustomField"
+import MediaUploader from "./MediaUploader"
+import TransformedImage from "./TransformedImage"
+import { updateCredits } from "@/lib/actions/user.actions"
+
 
 export const formSchema = z.object({
     title: z.string(),
@@ -78,30 +82,27 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
     const onInputChangeHandler = (fieldName: string, value: string, type: string, onChangeField: (value: string) => void) => {
         debounce(() => {
             setNewTransformation((prevState: any) => ({
-              ...prevState,
-              [type]: {
-                ...prevState?.[type],
-                [fieldName === 'prompt' ? 'prompt' : 'to' ]: value 
-              }
+                ...prevState,
+                [type]: {
+                    ...prevState?.[type],
+                    [fieldName === 'prompt' ? 'prompt' : 'to']: value
+                }
             }))
-          }, 1000)();
-            
-          return onChangeField(value)
+        }, 1000)();
+
+        return onChangeField(value)
     }
 
-    //TODO: Return to update credits
-    const onTransformHandler = async() => {
+    //TODO: Update credits
+    const onTransformHandler = async () => {
         setIsTransforming(true)
-
-    setTransformationConfig(
-      deepMergeObjects(newTransformation, transformationConfig)
-    )
-
-    setNewTransformation(null)
-
-    startTransition(async () => {
-      //await updateCredits(userId, creditFee)
-    })
+        setTransformationConfig(
+            deepMergeObjects(newTransformation, transformationConfig)
+        )
+        setNewTransformation(null)
+        startTransition(async () => {
+            await updateCredits(userId, -1)
+        })
     }
 
     return (
@@ -177,6 +178,33 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
                         )}
                     </div>
                 )}
+
+                <div className="media-uploader-field">
+                    <CustomField
+                        control={form.control}
+                        name="publicId"
+                        className="flex size-full flex-col"
+                        render={({ field }) => (
+                            <MediaUploader
+                                onValueChange={field.onChange}
+                                setImage={setImage}
+                                publicId={field.value}
+                                image={image}
+                                type={type}
+                            />
+                        )}
+                    />
+                    
+                    <TransformedImage
+                        image={image}
+                        type={type}
+                        title={form.getValues().title}
+                        isTransforming={isTransforming}
+                        setIsTransforming={setIsTransforming}
+                        transformationConfig={transformationConfig}
+                    />
+                    
+                </div>
 
                 <div className="flex flex-col gap-4">
                     <Button
