@@ -9,6 +9,61 @@ import { handleError } from "../utils";
 // CREATE
 export async function createUser(user: CreateUserParams) {
   try {
+    console.log("Connecting to the database...");
+    await connectToDatabase();
+    console.log("Connected. Creating new user:", user);
+
+    const newUser = await User.create(user);
+    console.log("New user created:", newUser);
+
+    return JSON.parse(JSON.stringify(newUser));
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+// READ
+export async function getUserById(userId: string) {
+  try {
+    console.log("Connecting to the database...");
+    await connectToDatabase();
+    console.log("Connected. Fetching user with ID:", userId);
+
+    const user = await User.findOne({ clerkId: userId });
+    console.log("User found:", user);
+
+    if (!user) throw new Error("User not found");
+
+    return JSON.parse(JSON.stringify(user));
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+// UPDATE
+export async function updateUser(clerkId: string, user: UpdateUserParams) {
+  try {
+    console.log("Connecting to the database...");
+    await connectToDatabase();
+    console.log("Connected. Updating user with clerkId:", clerkId);
+
+    const updatedUser = await User.findOneAndUpdate({ clerkId }, user, {
+      new: true,
+    });
+    console.log("Updated user:", updatedUser);
+
+    if (!updatedUser) throw new Error("User update failed");
+
+    return JSON.parse(JSON.stringify(updatedUser));
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+{/*
+// CREATE
+export async function createUser(user: CreateUserParams) {
+  try {
     await connectToDatabase();
 
     const newUser = await User.create(user);
@@ -50,6 +105,8 @@ export async function updateUser(clerkId: string, user: UpdateUserParams) {
     handleError(error);
   }
 }
+
+*/}
 
 // DELETE
 export async function deleteUser(clerkId: string) {
